@@ -1,0 +1,485 @@
+{
+  "id": "maritime_autonomy",
+  "name": "Maritime autonomy",
+  "thesis": "Attritable autonomous surface and subsurface vessels, built at scale. Portfolio anchors: Saronic (Series D, 2026), Aeon. The question is not whether USVs work in a demo. It is which remaining problems gate fleets of thousands operating with one human per many hulls, in contested, GNSS-denied water.",
+  "root": "fleet_scale_autonomy",
+  "nodes": [
+    {
+      "id": "fleet_scale_autonomy",
+      "label": "One operator, many hulls",
+      "cluster": "Outcome",
+      "status": "blocked",
+      "why": "The economic unlock for attritable fleets. Today supervision ratios are closer to 1:1. Every node below is a gate on this one.",
+      "unlocked_by": [
+        "colregs_compliant_planning",
+        "comms_denied_coordination",
+        "gnss_denied_nav",
+        "policy_assurance",
+        "hull_manufacturing_rate",
+        "long_endurance_power",
+        "maritime_domain_awareness"
+      ],
+      "queries": [
+        "\"unmanned surface\" supervisory control",
+        "\"human-machine teaming\" maritime unmanned",
+        "\"unmanned surface vessels\" fleet operator"
+      ],
+      "contract_queries": [
+        "unmanned surface vessel autonomy",
+        "unmanned surface vessel"
+      ]
+    },
+    {
+      "id": "sea_clutter_fusion",
+      "label": "Radar + EO/IR fusion in sea clutter",
+      "cluster": "Perception",
+      "status": "near",
+      "why": "Small boats and floating objects hide in wave clutter. Fusion that holds in sea state 4+ is the difference between a demo and a deployment.",
+      "unlocked_by": [
+        "small_object_detection_sea"
+      ],
+      "queries": [
+        "\"sea clutter\" detection learning",
+        "\"unmanned surface\" radar camera fusion",
+        "maritime radar \"target detection\" deep"
+      ],
+      "contract_queries": [
+        "maritime radar",
+        "unmanned surface vessel sensor"
+      ]
+    },
+    {
+      "id": "small_object_detection_sea",
+      "label": "Small-object detection on water",
+      "cluster": "Perception",
+      "status": "near",
+      "why": "Mines, swimmers, small craft, debris. Benchmarks exist (SeaDronesSee, MaSTr) but real-time detection at range in glare and chop is still research.",
+      "unlocked_by": [
+        "thermal_night_maritime"
+      ],
+      "queries": [
+        "maritime \"small object detection\"",
+        "\"unmanned surface\" obstacle detection camera",
+        "\"sea surface\" object detection YOLO"
+      ],
+      "contract_queries": [
+        "maritime object detection",
+        "unmanned surface vessel perception"
+      ]
+    },
+    {
+      "id": "thermal_night_maritime",
+      "label": "Low-light and thermal maritime perception",
+      "cluster": "Perception",
+      "status": "near",
+      "why": "Most interesting operations happen at night. Thermal datasets at sea are thin, so this is a data bottleneck more than a model one.",
+      "unlocked_by": [],
+      "queries": [
+        "maritime infrared ship detection",
+        "\"thermal\" maritime vessel detection night",
+        "\"infrared\" \"unmanned surface\" perception"
+      ],
+      "contract_queries": [
+        "maritime infrared",
+        "electro-optical infrared maritime"
+      ]
+    },
+    {
+      "id": "water_visual_odometry",
+      "label": "Visual odometry on open water",
+      "cluster": "Navigation",
+      "status": "blocked",
+      "why": "Water has no stable features. VO and SLAM that work on roads fail here. Whoever solves it removes the GPS dependency for the cheapest sensor on the boat.",
+      "unlocked_by": [],
+      "queries": [
+        "\"visual odometry\" maritime",
+        "\"visual SLAM\" \"unmanned surface\"",
+        "\"visual-inertial\" vessel water navigation"
+      ],
+      "contract_queries": [
+        "GPS denied navigation vision",
+        "visual navigation maritime"
+      ]
+    },
+    {
+      "id": "coastline_relative_localization",
+      "label": "Coastline and bathymetry-relative localization",
+      "cluster": "Navigation",
+      "status": "near",
+      "why": "Match what the sensors see to charts and terrain. Mature for UUVs with sonar, immature for cheap USVs with cameras and radar.",
+      "unlocked_by": [],
+      "queries": [
+        "\"terrain-relative navigation\" marine",
+        "bathymetric navigation GPS-denied",
+        "coastline matching localization vessel"
+      ],
+      "contract_queries": [
+        "terrain relative navigation",
+        "bathymetric navigation"
+      ]
+    },
+    {
+      "id": "cooperative_localization",
+      "label": "Multi-vessel cooperative localization",
+      "cluster": "Navigation",
+      "status": "near",
+      "why": "A fleet can localize itself by sharing relative measurements. Distributed filters are the active research front and they scale with fleet size.",
+      "unlocked_by": [],
+      "queries": [
+        "\"cooperative localization\" marine vehicles",
+        "distributed localization \"unmanned surface\" multi",
+        "\"relative localization\" USV swarm"
+      ],
+      "contract_queries": [
+        "cooperative navigation unmanned",
+        "multi-vehicle localization"
+      ]
+    },
+    {
+      "id": "gnss_denied_nav",
+      "label": "GNSS-denied navigation",
+      "cluster": "Navigation",
+      "status": "blocked",
+      "why": "Jamming and spoofing are the default in contested water. No cheap, reliable, multi-day solution exists for small hulls. This is the single most valuable blocked node in the sector.",
+      "unlocked_by": [
+        "water_visual_odometry",
+        "coastline_relative_localization",
+        "cooperative_localization",
+        "resilient_comms"
+      ],
+      "queries": [
+        "\"GNSS-denied\" maritime",
+        "\"GPS-denied\" \"surface vessel\"",
+        "spoofing jamming maritime navigation unmanned"
+      ],
+      "contract_queries": [
+        "GPS denied navigation",
+        "assured positioning navigation timing maritime"
+      ]
+    },
+    {
+      "id": "vessel_intent_prediction",
+      "label": "Intent prediction for manned vessels",
+      "cluster": "Decision",
+      "status": "near",
+      "why": "You cannot follow the rules of the road without guessing what the other boat will do. AIS-trained trajectory models are good; behavior under non-cooperative actors is not.",
+      "unlocked_by": [],
+      "queries": [
+        "vessel \"trajectory prediction\" AIS",
+        "ship \"intention\" prediction collision",
+        "\"ship trajectory prediction\" deep learning"
+      ],
+      "contract_queries": [
+        "vessel tracking prediction",
+        "maritime track prediction"
+      ]
+    },
+    {
+      "id": "colregs_compliant_planning",
+      "label": "COLREGs-compliant planning at sea",
+      "cluster": "Decision",
+      "status": "near",
+      "why": "The rules of the road are written for humans. Encoding them so a planner is both compliant and provably safe is the gating problem for operating near manned traffic.",
+      "unlocked_by": [
+        "vessel_intent_prediction",
+        "learned_maritime_policies",
+        "sea_clutter_fusion"
+      ],
+      "queries": [
+        "COLREGs \"collision avoidance\" unmanned",
+        "COLREGs \"path planning\"",
+        "COLREGs compliant autonomous ship"
+      ],
+      "contract_queries": [
+        "COLREGS",
+        "autonomous navigation collision avoidance vessel"
+      ]
+    },
+    {
+      "id": "learned_maritime_policies",
+      "label": "Learned control policies that transfer to real water",
+      "cluster": "Decision",
+      "status": "near",
+      "why": "RL policies trained in sim are strong in sim. Transfer across sea states and hull dynamics is where they break.",
+      "unlocked_by": [
+        "marine_simulation",
+        "hydrodynamic_system_id",
+        "wave_disturbance_modeling"
+      ],
+      "queries": [
+        "\"reinforcement learning\" \"unmanned surface vessel\"",
+        "\"sim-to-real\" maritime",
+        "\"reinforcement learning\" USV control sea"
+      ],
+      "contract_queries": [
+        "autonomy software unmanned surface vessel",
+        "machine learning maritime autonomy"
+      ]
+    },
+    {
+      "id": "swarm_task_allocation",
+      "label": "Swarm task allocation and formation",
+      "cluster": "Coordination",
+      "status": "solved",
+      "why": "Well studied in theory and in sim for a decade. Mostly solved when comms are good. The hard version is the next node.",
+      "unlocked_by": [],
+      "queries": [
+        "\"unmanned surface\" swarm formation control",
+        "multi-USV \"task allocation\"",
+        "\"unmanned surface vehicles\" cooperative formation"
+      ],
+      "contract_queries": [
+        "unmanned surface vessel swarm",
+        "swarming maritime"
+      ]
+    },
+    {
+      "id": "comms_denied_coordination",
+      "label": "Coordination without comms",
+      "cluster": "Coordination",
+      "status": "blocked",
+      "why": "Jammed fleets must still act together. Requires shared intent models and predictable behavior under silence. Very few groups work on the maritime version.",
+      "unlocked_by": [
+        "swarm_task_allocation",
+        "resilient_comms"
+      ],
+      "queries": [
+        "\"communication-denied\" multi-robot",
+        "decentralized coordination \"limited communication\" marine",
+        "\"intermittent communication\" multi-agent coordination"
+      ],
+      "contract_queries": [
+        "communications denied autonomy",
+        "autonomous collaboration contested environment"
+      ]
+    },
+    {
+      "id": "usv_uuv_teaming",
+      "label": "Surface and subsurface teaming",
+      "cluster": "Coordination",
+      "status": "near",
+      "why": "A USV acting as comms relay and launch platform for UUVs multiplies reach. Acoustic links and docking are the gates.",
+      "unlocked_by": [
+        "resilient_comms"
+      ],
+      "queries": [
+        "USV AUV cooperative",
+        "\"unmanned surface\" \"underwater vehicle\" docking",
+        "heterogeneous marine vehicles cooperation"
+      ],
+      "contract_queries": [
+        "unmanned underwater vehicle launch recovery",
+        "USV UUV"
+      ]
+    },
+    {
+      "id": "resilient_comms",
+      "label": "Resilient over-the-horizon comms",
+      "cluster": "Infrastructure",
+      "status": "near",
+      "why": "Mesh, LEO SATCOM, and acoustic links each fail differently. The fleet needs all three and a planner that knows which one is up.",
+      "unlocked_by": [],
+      "queries": [
+        "maritime \"mesh network\" unmanned",
+        "\"underwater acoustic\" network autonomous vehicles",
+        "\"unmanned surface\" communication relay satellite"
+      ],
+      "contract_queries": [
+        "maritime mesh network",
+        "unmanned maritime communications"
+      ]
+    },
+    {
+      "id": "marine_simulation",
+      "label": "High-fidelity marine simulation",
+      "cluster": "Infrastructure",
+      "status": "near",
+      "why": "You cannot run a million sea trials. Sims like HoloOcean and procedurally generated coastlines are the training ground. Fidelity of waves and sensors is the gap.",
+      "unlocked_by": [],
+      "queries": [
+        "HoloOcean",
+        "marine robotics simulator",
+        "\"unmanned surface\" simulation environment synthetic"
+      ],
+      "contract_queries": [
+        "maritime simulation autonomy",
+        "unmanned surface vessel simulation"
+      ]
+    },
+    {
+      "id": "hydrodynamic_system_id",
+      "label": "Fast hydrodynamic system identification",
+      "cluster": "Infrastructure",
+      "status": "near",
+      "why": "Every new hull needs a dynamics model before autonomy works. Data-driven and physics-informed methods cut that from months to days, which is what mass production needs.",
+      "unlocked_by": [],
+      "queries": [
+        "ship maneuvering \"system identification\"",
+        "\"physics-informed\" ship hydrodynamic",
+        "data-driven vessel dynamics model identification"
+      ],
+      "contract_queries": [
+        "hydrodynamic modeling vessel",
+        "ship maneuvering model"
+      ]
+    },
+    {
+      "id": "wave_disturbance_modeling",
+      "label": "Wave and weather disturbance modeling",
+      "cluster": "Infrastructure",
+      "status": "near",
+      "why": "Control and perception both degrade with sea state. Short-horizon wave prediction on board is the unlock for both.",
+      "unlocked_by": [],
+      "queries": [
+        "\"wave prediction\" ship motion",
+        "\"sea state estimation\" ship",
+        "ship motion forecasting deep learning waves"
+      ],
+      "contract_queries": [
+        "wave forecasting ship motion",
+        "sea state estimation"
+      ]
+    },
+    {
+      "id": "long_endurance_power",
+      "label": "Multi-week endurance power",
+      "cluster": "Platform",
+      "status": "near",
+      "why": "Persistent presence is the mission. Wave, solar, and hybrid power systems exist at small scale; reliability over months is the gate.",
+      "unlocked_by": [
+        "wave_disturbance_modeling"
+      ],
+      "queries": [
+        "\"unmanned surface\" solar endurance",
+        "\"wave energy\" unmanned vehicle power",
+        "long-endurance USV hybrid power"
+      ],
+      "contract_queries": [
+        "long endurance unmanned surface vessel",
+        "unmanned surface vessel power system"
+      ]
+    },
+    {
+      "id": "hull_manufacturing_rate",
+      "label": "Hull production at automotive rates",
+      "cluster": "Platform",
+      "status": "blocked",
+      "why": "Boats are built like boats. Thousands of attritable hulls per year needs composite or additive processes that do not exist in the industry yet.",
+      "unlocked_by": [
+        "modular_payloads"
+      ],
+      "queries": [
+        "\"additive manufacturing\" hull boat",
+        "composite hull automated manufacturing",
+        "\"large-format additive\" marine"
+      ],
+      "contract_queries": [
+        "unmanned surface vessel production",
+        "boat hull manufacturing"
+      ]
+    },
+    {
+      "id": "modular_payloads",
+      "label": "Modular payload integration",
+      "cluster": "Platform",
+      "status": "near",
+      "why": "Same hull, many missions. Open standards for power, data, and mounting let a fleet change role in hours.",
+      "unlocked_by": [],
+      "queries": [
+        "\"unmanned surface\" modular payload",
+        "unmanned maritime \"open architecture\"",
+        "USV payload interface modular"
+      ],
+      "contract_queries": [
+        "unmanned surface vessel payload",
+        "modular payload maritime"
+      ]
+    },
+    {
+      "id": "policy_assurance",
+      "label": "Assurance of learned maritime autonomy",
+      "cluster": "Assurance",
+      "status": "blocked",
+      "why": "Navies and insurers need proof, not demos. Runtime monitors and formal verification of learned controllers at sea are early. Whoever owns this owns certification.",
+      "unlocked_by": [
+        "learned_maritime_policies",
+        "colregs_compliant_planning"
+      ],
+      "queries": [
+        "\"runtime assurance\" autonomous vessel",
+        "verification \"collision avoidance\" autonomous ship",
+        "safety assurance \"maritime autonomous\""
+      ],
+      "contract_queries": [
+        "autonomy assurance",
+        "test and evaluation autonomous maritime"
+      ]
+    },
+    {
+      "id": "counter_usv",
+      "label": "Detect and defeat hostile USVs",
+      "cluster": "Defense",
+      "status": "emerging",
+      "why": "Black Sea operations proved cheap USVs sink ships. The counter is now a market of its own and the research is a year old.",
+      "unlocked_by": [
+        "small_object_detection_sea",
+        "sea_clutter_fusion"
+      ],
+      "queries": [
+        "counter \"unmanned surface vessel\"",
+        "\"unmanned surface\" threat detection naval",
+        "USV attack defense naval"
+      ],
+      "contract_queries": [
+        "counter unmanned surface vessel",
+        "counter USV"
+      ]
+    },
+    {
+      "id": "autonomous_mine_countermeasures",
+      "label": "Autonomous mine countermeasures",
+      "cluster": "Defense",
+      "status": "near",
+      "why": "The first mission navies hand to robots because it is the one humans least want. Sonar ATR is good, the full autonomous detect-to-neutralize loop is not.",
+      "unlocked_by": [
+        "usv_uuv_teaming",
+        "small_object_detection_sea"
+      ],
+      "queries": [
+        "\"mine countermeasures\" autonomous",
+        "\"synthetic aperture sonar\" mine detection",
+        "mine-like object detection sonar"
+      ],
+      "contract_queries": [
+        "mine countermeasures unmanned",
+        "mine countermeasures"
+      ]
+    },
+    {
+      "id": "maritime_domain_awareness",
+      "label": "Fleet-scale maritime domain awareness",
+      "cluster": "Defense",
+      "status": "near",
+      "why": "Thousands of cheap sensors on the water beat one expensive one. Fusing them into one picture is a data problem that no vessel company has solved.",
+      "unlocked_by": [
+        "resilient_comms",
+        "sea_clutter_fusion",
+        "small_object_detection_sea"
+      ],
+      "queries": [
+        "\"maritime domain awareness\" unmanned",
+        "maritime surveillance \"sensor network\"",
+        "maritime situational awareness fusion AIS"
+      ],
+      "contract_queries": [
+        "maritime domain awareness",
+        "maritime surveillance unmanned"
+      ]
+    }
+  ],
+  "roots": [
+    "fleet_scale_autonomy",
+    "counter_usv",
+    "autonomous_mine_countermeasures"
+  ]
+}

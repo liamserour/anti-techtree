@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tech Tree</title>
+<meta name="description" content="A living technology tree: what became possible, what is one problem away, and who can solve it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.30.4/cytoscape.min.js"></script>
+<style>
+:root{
+  --paper:#faf8f1; --paper-alt:#f1ede2; --ink:#141414; --ink-soft:#373631; --ink-muted:#59574f;
+  --line:#cdc5b7; --line-strong:#9f988a; --accent:#6f1d1b; --accent-quiet:#31533d; --green:#008138;
+  --sans:"IBM Plex Sans",Arial,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace; --serif:"Source Serif 4",Georgia,serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#161512; --paper-alt:#1f1d19; --ink:#f1ede2; --ink-soft:#d9d3c4; --ink-muted:#a9a293;
+  --line:#3a372f; --line-strong:#59574f; --accent:#c4514c; --accent-quiet:#7fb08c; --green:#58b77f; } }
+:root[data-theme="dark"]{
+  --paper:#161512; --paper-alt:#1f1d19; --ink:#f1ede2; --ink-soft:#d9d3c4; --ink-muted:#a9a293;
+  --line:#3a372f; --line-strong:#59574f; --accent:#c4514c; --accent-quiet:#7fb08c; --green:#58b77f; }
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:underline;text-decoration-color:var(--line-strong);text-underline-offset:3px}
+a:hover{text-decoration-color:var(--ink)}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{display:grid;grid-template-rows:auto 1fr;height:100%}
+header{display:flex;align-items:baseline;gap:24px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+header .brand{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);white-space:nowrap}
+header .brand span{color:var(--ink-muted)}
+header h1{font-family:var(--serif);font-weight:600;font-size:22px;margin:0;letter-spacing:-.015em}
+header .meta{font-family:var(--mono);font-size:12px;color:var(--ink-muted);margin-left:auto}
+.tabs{display:flex;gap:18px}
+.tabs button{font-size:14px;color:var(--ink-muted);padding:2px 0;border-bottom:2px solid transparent}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+main{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(360px,1fr);min-height:0}
+.graph-wrap{position:relative;border-right:1px solid var(--line);min-height:0}
+#cy{position:absolute;inset:0}
+.legend{position:absolute;left:16px;bottom:14px;display:flex;gap:14px;font-family:var(--mono);font-size:11px;color:var(--ink-muted);pointer-events:none;flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:12px;vertical-align:-2px;margin-right:6px;border:1.5px solid var(--ink)}
+.legend .solved i{background:var(--paper-alt);border-color:var(--line-strong)}
+.legend .near i{background:var(--paper)}
+.legend .blocked i{background:var(--accent);border-color:var(--accent)}
+.legend .emerging i{border-color:var(--accent-quiet);border-style:dashed}
+.hint{position:absolute;right:16px;top:14px;font-family:var(--mono);font-size:11px;color:var(--ink-muted);pointer-events:none}
+aside{overflow:auto;padding:22px 24px 40px;min-height:0}
+.eyebrow{font-family:var(--mono);font-size:12px;color:var(--ink-muted);margin:0 0 6px}
+.status{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border:1px solid var(--line-strong);border-radius:2px;color:var(--ink-soft);vertical-align:middle;margin-left:8px}
+.status.blocked{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.status.solved{color:var(--ink-muted);border-color:var(--line)}
+.status.emerging{border-color:var(--accent-quiet);color:var(--accent-quiet)}
+aside h2{font-family:var(--serif);font-weight:600;font-size:26px;line-height:1.2;letter-spacing:-.015em;margin:0 0 10px}
+aside h3{font-family:var(--sans);font-weight:600;font-size:13px;margin:26px 0 8px;color:var(--ink);display:flex;justify-content:space-between;align-items:baseline}
+aside h3 small{font-family:var(--mono);font-weight:400;font-size:11px;color:var(--ink-muted)}
+.why{font-family:var(--serif);font-size:17px;line-height:1.5;color:var(--ink-soft);max-width:60ch;margin:0 0 14px}
+.momentum{display:grid;grid-template-columns:repeat(3,auto);gap:0 22px;font-family:var(--mono);font-size:12px;color:var(--ink-muted);padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.momentum b{display:block;font-size:20px;font-weight:500;color:var(--ink);line-height:1.1}
+.momentum b.up{color:var(--green)}
+.needs{display:flex;flex-wrap:wrap;gap:6px}
+.needs button{font-size:13px;padding:3px 9px;border:1px solid var(--line-strong);border-radius:2px;background:var(--paper)}
+.needs button.blocked{border-color:var(--accent);color:var(--accent)}
+.needs button:hover{background:var(--paper-alt)}
+ul.ev,ul.pp{list-style:none;margin:0;padding:0}
+ul.ev li{padding:9px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:86px 1fr;gap:10px}
+ul.ev .d{font-family:var(--mono);font-size:12px;color:var(--ink-muted);padding-top:2px}
+ul.ev .d span{display:block;color:var(--line-strong)}
+ul.ev .t{font-size:14px;line-height:1.4}
+ul.ev .a{font-size:12.5px;color:var(--ink-muted);margin-top:2px}
+ul.ev .a .m{color:var(--accent-quiet)}
+ul.pp li{display:grid;grid-template-columns:1fr auto;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);align-items:start}
+ul.pp .n{font-weight:500}
+ul.pp .n button{text-align:left}
+ul.pp .n button:hover{text-decoration:underline;text-decoration-color:var(--line-strong);text-underline-offset:3px}
+ul.pp .i{font-size:12.5px;color:var(--ink-muted)}
+ul.pp .s{font-family:var(--mono);font-size:12px;color:var(--ink-muted);text-align:right;white-space:nowrap}
+ul.pp .s b{display:block;color:var(--ink);font-weight:500;font-size:14px}
+.flag{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-quiet);border:1px solid var(--accent-quiet);padding:1px 5px;border-radius:2px;margin-left:6px;vertical-align:1px}
+.empty{color:var(--ink-muted);font-size:14px;padding:10px 0}
+.note{background:var(--paper-alt);border:1px solid var(--line);padding:14px 16px;margin-top:10px;font-size:13.5px}
+.note ol{margin:8px 0 0;padding-left:20px}
+.note li{margin:6px 0}
+.note li em{color:var(--ink-muted);font-style:normal}
+.note .foot{font-family:var(--mono);font-size:11px;color:var(--ink-muted);margin-top:10px}
+.note code{font-family:var(--mono);font-size:12px;background:var(--paper);padding:1px 5px;border:1px solid var(--line)}
+.moved li{padding:8px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr auto;gap:12px;align-items:baseline}
+.moved button{text-align:left;font-size:14px}
+.moved button:hover{text-decoration:underline;text-decoration-color:var(--line-strong);text-underline-offset:3px}
+.moved .k{font-family:var(--mono);font-size:12px;color:var(--ink-muted)}
+.moved .k b{color:var(--ink);font-weight:500}
+.filters{display:flex;gap:14px;font-size:13px;color:var(--ink-muted);margin:4px 0 6px}
+.filters label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.filters input{accent-color:var(--accent)}
+.back{font-size:13px;color:var(--ink-muted);margin-bottom:14px;display:inline-block}
+.back:hover{color:var(--ink)}
+@media (max-width:900px){
+  main{grid-template-columns:1fr;grid-template-rows:52vh 1fr}
+  .graph-wrap{border-right:0;border-bottom:1px solid var(--line)}
+  aside{padding:18px 16px 40px}
+  header{padding:12px 16px;gap:14px}
+  header .meta{margin-left:0;width:100%}
+}
+@media (prefers-reduced-motion:reduce){ *{transition:none!important;animation:none!important} }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">Anti Fund <span>/ Tech tree</span></div>
+    <h1 id="sector">Loading</h1>
+    <nav class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-tab="node">Node</button>
+      <button role="tab" aria-selected="false" data-tab="moved">What moved</button>
+      <button role="tab" aria-selected="false" data-tab="people">People</button>
+    </nav>
+    <div class="meta" id="meta"></div>
+  </header>
+  <main>
+    <div class="graph-wrap">
+      <div id="cy" role="img" aria-label="Capability tree"></div>
+      <div class="hint">click a node · scroll to zoom</div>
+      <div class="legend">
+        <span class="solved"><i></i>solved</span>
+        <span class="near"><i></i>one problem away</span>
+        <span class="blocked"><i></i>blocked</span>
+        <span class="emerging"><i></i>emerging</span>
+      </div>
+    </div>
+    <aside id="panel"><p class="empty">Loading data/tree.json</p></aside>
+  </main>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const STATUS_LABEL = {solved:'solved', near:'one problem away', blocked:'blocked', emerging:'emerging'};
+let T, byId, evById, cy, current, tab = 'node', lastNode;
+
+async function boot(){
+  try {
+    T = await (await fetch('data/tree.json', {cache:'no-store'})).json();
+  } catch (e) {
+    $('#panel').innerHTML = '<p class="empty">No tree yet. Run <code>uv run techtree update</code> in the repo, then reload.</p>';
+    $('#sector').textContent = 'Tech tree';
+    return;
+  }
+  byId = Object.fromEntries(T.nodes.map(n => [n.id, n]));
+  evById = {}; T.nodes.forEach(n => n.evidence.forEach(e => evById[e.id] = e));
+  $('#sector').textContent = T.sector.name;
+  $('#meta').textContent = `${T.stats.nodes} nodes · ${T.stats.evidence} sources · ${T.stats.people} people · updated ${T.generated_at}`;
+  drawGraph();
+  document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+  try { const t = localStorage.getItem('tt.tab'); if (t) tab = t; } catch {}
+  try { lastNode = localStorage.getItem('tt.node'); } catch {}
+  if (tab === 'node') showNode(byId[lastNode] ? lastNode : T.sector.root); else setTab(tab);
+}
+
+function drawGraph(){
+  const els = [];
+  T.nodes.forEach(n => els.push({data:{id:n.id, label:n.label, status:n.status, cluster:n.cluster, w: Math.min(210, 50 + n.label.length * 5.9)}}));
+  T.nodes.forEach(n => n.unlocked_by.forEach(u => els.push({data:{id:`${n.id}>${u}`, source:n.id, target:u}})));
+  const css = getComputedStyle(document.documentElement);
+  const v = k => css.getPropertyValue(k).trim();
+  cy = cytoscape({
+    container: $('#cy'), elements: els, wheelSensitivity: 0.2, autoungrabify: false,
+    style: [
+      {selector:'node', style:{
+        'shape':'round-rectangle', 'width':'data(w)', 'height':32, 'label':'data(label)',
+        'font-family': v('--sans'), 'font-size':12, 'text-wrap':'ellipsis', 'text-max-width':'data(w)',
+        'text-valign':'center','text-halign':'center', 'color': v('--ink'),
+        'background-color': v('--paper'), 'border-width':1.5, 'border-color': v('--ink'), 'padding':'6px'}},
+      {selector:'node[status="solved"]', style:{'background-color': v('--paper-alt'), 'border-color': v('--line-strong'), 'color': v('--ink-muted')}},
+      {selector:'node[status="blocked"]', style:{'background-color': v('--accent'), 'border-color': v('--accent'), 'color': v('--paper'), 'font-weight':500}},
+      {selector:'node[status="emerging"]', style:{'border-color': v('--accent-quiet'), 'border-style':'dashed'}},
+      {selector:'edge', style:{'width':1, 'line-color': v('--line-strong'), 'curve-style':'taxi', 'taxi-direction':'rightward', 'taxi-turn':28,
+        'source-arrow-shape':'none', 'target-arrow-shape':'none'}},
+      {selector:'node.sel', style:{'border-width':3, 'overlay-opacity':0}},
+      {selector:'edge.sel', style:{'line-color': v('--ink'), 'width':2}},
+      {selector:'.dim', style:{'opacity':0.28}},
+    ],
+    layout: {name:'preset'}
+  });
+  // lay out top-down, then rotate so depth runs left to right: deep rows stack vertically where there is room
+  cy.layout({name:'breadthfirst', directed:true, roots:(T.sector.roots || [T.sector.root]), spacingFactor:1, padding:0, avoidOverlap:true}).run();
+  const depthGap = 250, rowGap = 44;
+  const byDepth = {};
+  cy.nodes().forEach(n => { const d = Math.round(n.position('y')); (byDepth[d] = byDepth[d] || []).push(n); });
+  Object.keys(byDepth).map(Number).sort((a,b) => a-b).forEach((d, col) => {
+    const col_nodes = byDepth[d].sort((a,b) => a.position('x') - b.position('x'));
+    const h = (col_nodes.length - 1) * rowGap;
+    col_nodes.forEach((n, i) => n.position({x: col * depthGap, y: i * rowGap - h / 2}));
+  });
+  cy.fit(undefined, 24);
+  cy.minZoom(0.45); cy.maxZoom(2.2);
+  if (cy.zoom() > 1.3) { cy.zoom(1.3); cy.center(); }
+  cy.on('tap', 'node', e => { setTab('node'); showNode(e.target.id()); });
+  cy.on('tap', e => { if (e.target === cy) { cy.elements().removeClass('dim sel'); } });
+  window.addEventListener('resize', () => cy.resize());
+}
+
+function highlight(id){
+  cy.elements().removeClass('dim sel');
+  const n = cy.getElementById(id);
+  const nb = n.closedNeighborhood();
+  cy.elements().not(nb).addClass('dim');
+  n.addClass('sel'); n.connectedEdges().addClass('sel');
+}
+
+function setTab(t){
+  tab = t;
+  try { localStorage.setItem('tt.tab', t); } catch {}
+  document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === t)));
+  if (t === 'node') showNode(current || T.sector.root);
+  if (t === 'moved') showMoved();
+  if (t === 'people') showPeople();
+}
+
+function showNode(id){
+  const n = byId[id]; if (!n) return;
+  current = id; try { localStorage.setItem('tt.node', id); } catch {}
+  highlight(id);
+  const m = n.momentum;
+  const needs = n.unlocked_by.map(u => `<button class="${byId[u].status}" data-go="${u}">${esc(byId[u].label)}</button>`).join('');
+  const enables = T.nodes.filter(x => x.unlocked_by.includes(id)).map(x => `<button class="${x.status}" data-go="${x.id}">${esc(x.label)}</button>`).join('');
+  const people = T.people.filter(p => p.nodes.includes(id)).slice(0, 12);
+  $('#panel').innerHTML = `
+    <p class="eyebrow">${esc(n.cluster)}</p>
+    <h2>${esc(n.label)}<span class="status ${n.status}">${STATUS_LABEL[n.status]}</span></h2>
+    <p class="why">${esc(n.why)}</p>
+    <div class="momentum">
+      <div><b class="${m.delta > 0 ? 'up':''}">${m.recent_90}</b>new in last 90 days</div>
+      <div><b>${m.prior_90}</b>the 90 days before</div>
+      <div><b>${m.funding_usd ? '$' + fmtMoney(m.funding_usd) : '–'}</b>public money, 12 months</div>
+    </div>
+    ${needs ? `<h3>Gated by</h3><div class="needs">${needs}</div>` : ''}
+    ${enables ? `<h3>Unlocks</h3><div class="needs">${enables}</div>` : ''}
+    <h3>Who is pushing on it <small>${people.length} of ${T.people.filter(p => p.nodes.includes(id)).length}</small></h3>
+    ${people.length ? `<ul class="pp">${people.map(personRow).join('')}</ul>` : '<p class="empty">No people on record yet. Run an update.</p>'}
+    <h3>Evidence <small>${n.evidence.length} items, newest first</small></h3>
+    ${n.evidence.length ? `<ul class="ev">${n.evidence.slice(0, 40).map(evRow).join('')}</ul>` : '<p class="empty">Nothing collected for this node yet.</p>'}
+    <h3>Searches behind this node</h3>
+    <p class="empty" style="font-family:var(--mono);font-size:12px">${n.queries.map(esc).join('<br>')}</p>`;
+  wire();
+  $('#panel').scrollTop = 0;
+}
+
+function showMoved(){
+  const rows = T.nodes.map(n => ({n, k: n.momentum.recent_90, d: n.momentum.delta})).sort((a,b) => b.k - a.k || b.d - a.d);
+  const blocked = T.nodes.filter(n => n.status === 'blocked').sort((a,b) => b.momentum.recent_90 - a.momentum.recent_90);
+  $('#panel').innerHTML = `
+    <p class="eyebrow">Last 90 days</p>
+    <h2>What moved</h2>
+    <p class="why">Nodes ranked by new public evidence since ${minus90(T.generated_at)}. A blocked node with rising momentum is where the next company comes from.</p>
+    <h3>Blocked nodes by momentum</h3>
+    <ul class="moved">${blocked.map(n => `<li><button data-go="${n.id}">${esc(n.label)}</button><span class="k"><b>${n.momentum.recent_90}</b> new · ${n.momentum.prior_90} before</span></li>`).join('')}</ul>
+    <h3>All nodes</h3>
+    <ul class="moved">${rows.map(({n}) => `<li><button data-go="${n.id}">${esc(n.label)} <span class="status ${n.status}" style="margin-left:6px">${STATUS_LABEL[n.status]}</span></button><span class="k"><b>${n.momentum.recent_90}</b> new · ${n.momentum.prior_90} before</span></li>`).join('')}</ul>
+    <p class="empty" style="margin-top:18px">For the diff against the previous snapshot, run <code style="font-family:var(--mono);font-size:12px">uv run techtree digest</code>.</p>`;
+  wire();
+}
+
+function showPeople(filters = {spinout:false, allied:false, q:''}){
+  let rows = T.people;
+  if (filters.spinout) rows = rows.filter(p => p.spinout_signal);
+  if (filters.allied) rows = rows.filter(p => p.allied);
+  if (filters.q) rows = rows.filter(p => (p.name + ' ' + p.institutions.join(' ')).toLowerCase().includes(filters.q));
+  $('#panel').innerHTML = `
+    <p class="eyebrow">Across the tree</p>
+    <h2>Who can solve it</h2>
+    <p class="why">Scored by recent first-author work on nodes that are not yet solved. A spinout signal means an academic with first-author work on a blocked or one-problem-away node.</p>
+    <div class="filters">
+      <label><input type="checkbox" id="f-spin" ${filters.spinout ? 'checked':''}> spinout signal</label>
+      <label><input type="checkbox" id="f-allied" ${filters.allied ? 'checked':''}> US and allies</label>
+      <input id="f-q" placeholder="name or institution" value="${esc(filters.q)}" style="font:inherit;font-size:13px;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:3px 8px;border-radius:2px;flex:1;min-width:120px">
+    </div>
+    <ul class="pp">${rows.slice(0, 60).map(personRow).join('')}</ul>
+    ${rows.length > 60 ? `<p class="empty">${rows.length - 60} more. Narrow the search.</p>` : ''}
+    ${!rows.length ? '<p class="empty">No one matches.</p>' : ''}`;
+  $('#f-spin').addEventListener('change', e => showPeople({...filters, spinout: e.target.checked}));
+  $('#f-allied').addEventListener('change', e => showPeople({...filters, allied: e.target.checked}));
+  $('#f-q').addEventListener('input', e => showPeople({...filters, q: e.target.value.toLowerCase()}));
+  wire();
+}
+
+function showPerson(key){
+  const p = T.people.find(x => x.key === key); if (!p) return;
+  const works = p.evidence.map(i => evById[i]).filter(Boolean).sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  const nodes = p.nodes.map(i => byId[i]);
+  $('#panel').innerHTML = `
+    <button class="back" data-back="1">← back</button>
+    <p class="eyebrow">${esc(p.institutions[0] || 'No institution on record')}${p.ids.orcid ? ` · <a href="${esc(p.ids.orcid)}" target="_blank" rel="noopener">orcid</a>` : ''}${p.ids.openalex ? ` · <a href="${esc(p.ids.openalex)}" target="_blank" rel="noopener">openalex</a>` : ''}</p>
+    <h2>${esc(p.name)}${p.spinout_signal ? '<span class="flag">spinout signal</span>' : ''}</h2>
+    <div class="momentum">
+      <div><b>${p.score}</b>score</div>
+      <div><b>${p.first_author}</b>first-author items</div>
+      <div><b>${esc(p.latest || '–')}</b>latest</div>
+    </div>
+    <h3>Nodes they push on</h3>
+    <div class="needs">${nodes.map(n => `<button class="${n.status}" data-go="${n.id}">${esc(n.label)}</button>`).join('')}</div>
+    <h3>Their work on the tree</h3>
+    <ul class="ev">${works.map(evRow).join('')}</ul>
+    <h3>Facts for a note</h3>
+    <div class="note">
+      Five lines, in the format Geoff asks for. The tool supplies facts. You write the note.
+      <ol>
+        <li><em>Who:</em> ${esc(p.name)}${p.institutions[0] ? ', ' + esc(p.institutions[0]) : ''}</li>
+        <li><em>Why they matter:</em> ${works.slice(0,2).map(w => esc(w.title)).join('; ')}</li>
+        <li><em>Why now:</em> latest item ${esc(p.latest || 'unknown')}${p.first_author ? ', first author' : ''}</li>
+        <li><em>Why Anti Fund should care:</em> ${esc(nodes[0].label)} is ${STATUS_LABEL[nodes[0].status]}. ${esc(nodes[0].why)}</li>
+        <li><em>Your relationship to the opportunity:</em> you write this.</li>
+      </ol>
+      <div class="foot">Same facts in the terminal: <code>uv run techtree note ${esc(p.name.split(' ').slice(-1)[0])}</code></div>
+    </div>`;
+  wire();
+  $('#panel').scrollTop = 0;
+}
+
+function personRow(p){
+  const n0 = byId[p.nodes[0]];
+  return `<li>
+    <div class="n"><button data-person="${esc(p.key)}">${esc(p.name)}</button>${p.spinout_signal ? '<span class="flag">spinout</span>' : ''}
+      <div class="i">${p.country ? esc(p.country) + ' · ' : ''}${esc(p.institutions[0] || '')}${p.institutions[0] ? ' · ' : ''}${esc(n0.label)}</div></div>
+    <div class="s"><b>${p.score}</b>${esc(p.latest || '')}</div></li>`;
+}
+
+function evRow(e){
+  const x = e.extra || {};
+  const who = e.authors.length ? e.authors.slice(0,4).map(a => esc(a.name)).join(', ') + (e.authors.length > 4 ? ` +${e.authors.length - 4}` : '') : esc(x.recipient || '');
+  const money = x.amount ? ` <span class="m">$${fmtMoney(x.amount)}</span>` : '';
+  const src = {openalex:'paper', arxiv:'arxiv', nsf:'NSF award', usaspending: (x.agency ? esc(x.agency) : 'federal award')}[e.source] || e.source;
+  return `<li><div class="d">${esc(e.date || '')}<span>${src}</span></div>
+    <div><div class="t"><a href="${esc(e.url)}" target="_blank" rel="noopener">${esc(e.title)}</a></div><div class="a">${who}${money}</div></div></li>`;
+}
+
+function wire(){
+  document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { setTab('node'); showNode(b.dataset.go); cy.animate({center:{eles: cy.getElementById(b.dataset.go)}}, {duration: 250}); }));
+  document.querySelectorAll('[data-person]').forEach(b => b.addEventListener('click', () => showPerson(b.dataset.person)));
+  document.querySelectorAll('[data-back]').forEach(b => b.addEventListener('click', () => setTab(tab)));
+}
+
+function fmtMoney(v){ v = Number(v); return v >= 1e6 ? (v/1e6).toFixed(1) + 'M' : v >= 1e3 ? Math.round(v/1e3) + 'K' : String(Math.round(v)); }
+function minus90(d){ const t = new Date(d); t.setDate(t.getDate() - 90); return t.toISOString().slice(0,10); }
+boot();
+</script>
+</body>
+</html>
