@@ -28,7 +28,8 @@ Run everything from the repo root.
 | Pull fresh evidence from all sources and rebuild | `uv run techtree update` |
 | What moved since the previous snapshot (markdown) | `uv run techtree digest` |
 | Nodes by status and momentum | `uv run techtree nodes` |
-| Ranked people, all nodes | `uv run techtree people --top 40` |
+| Ranked people, US and allied institutions (default) | `uv run techtree people --top 40` |
+| Ranked people, every country | `uv run techtree people --all` |
 | Academics with first-author work on unsolved nodes | `uv run techtree people --spinout` |
 | People on one node | `uv run techtree people --node gnss_denied_nav` |
 | Facts for a 5-line note about a person | `uv run techtree note Mangelson` |
@@ -51,6 +52,7 @@ To add a sector, copy `data/sectors/maritime_autonomy.json`, rewrite the nodes, 
 - Public money is the sum of NSF awards and federal contracts collected for the node in the look-back window. It is a floor, not a total.
 - A person's score adds up their items on the tree, weighted by recency (last 90 days counts most), author position (first author counts most), and node status (blocked nodes count most, solved nodes least).
 - Spinout signal: academic affiliation, at least one first-author item, on a node that is not solved.
+- Country: taken from the first institution on record. `people` hides non-allied countries by default because most of the literature is from Chinese institutions (about 750 of 2,100 people on the maritime tree) and a US defense investor cannot act on those names. `--all` shows everyone.
 
 ## Sources
 

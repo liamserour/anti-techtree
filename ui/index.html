@@ -225,7 +225,10 @@ function showNode(id){
   const m = n.momentum;
   const needs = n.unlocked_by.map(u => `<button class="${byId[u].status}" data-go="${u}">${esc(byId[u].label)}</button>`).join('');
   const enables = T.nodes.filter(x => x.unlocked_by.includes(id)).map(x => `<button class="${x.status}" data-go="${x.id}">${esc(x.label)}</button>`).join('');
-  const people = T.people.filter(p => p.nodes.includes(id)).slice(0, 12);
+  const all = T.people.filter(p => p.nodes.includes(id));
+  const allied = all.filter(p => p.allied);
+  const showAll = !!window.__showAllPeople;
+  const people = (showAll ? all : allied).slice(0, 12);
   $('#panel').innerHTML = `
     <p class="eyebrow">${esc(n.cluster)}</p>
     <h2>${esc(n.label)}<span class="status ${n.status}">${STATUS_LABEL[n.status]}</span></h2>
@@ -237,8 +240,8 @@ function showNode(id){
     </div>
     ${needs ? `<h3>Gated by</h3><div class="needs">${needs}</div>` : ''}
     ${enables ? `<h3>Unlocks</h3><div class="needs">${enables}</div>` : ''}
-    <h3>Who is pushing on it <small>${people.length} of ${T.people.filter(p => p.nodes.includes(id)).length}</small></h3>
-    ${people.length ? `<ul class="pp">${people.map(personRow).join('')}</ul>` : '<p class="empty">No people on record yet. Run an update.</p>'}
+    <h3>Who is pushing on it <small>${showAll ? `all ${all.length}` : `${allied.length} US and allied of ${all.length}`} · <button data-toggle-people="1" style="text-decoration:underline;text-underline-offset:3px">${showAll ? 'allies only' : 'show everyone'}</button></small></h3>
+    ${people.length ? `<ul class="pp">${people.map(personRow).join('')}</ul>` : `<p class="empty">${all.length ? 'No US or allied names on this node. Click "show everyone".' : 'No people on record yet. Run an update.'}</p>`}
     <h3>Evidence <small>${n.evidence.length} items, newest first</small></h3>
     ${n.evidence.length ? `<ul class="ev">${n.evidence.slice(0, 40).map(evRow).join('')}</ul>` : '<p class="empty">Nothing collected for this node yet.</p>'}
     <h3>Searches behind this node</h3>
@@ -262,8 +265,9 @@ function showMoved(){
   wire();
 }
 
-function showPeople(filters = {spinout:false, allied:false, q:''}){
+function showPeople(filters = {spinout:false, allied:true, q:''}){
   let rows = T.people;
+  const total = T.people.length;
   if (filters.spinout) rows = rows.filter(p => p.spinout_signal);
   if (filters.allied) rows = rows.filter(p => p.allied);
   if (filters.q) rows = rows.filter(p => (p.name + ' ' + p.institutions.join(' ')).toLowerCase().includes(filters.q));
@@ -276,6 +280,7 @@ function showPeople(filters = {spinout:false, allied:false, q:''}){
       <label><input type="checkbox" id="f-allied" ${filters.allied ? 'checked':''}> US and allies</label>
       <input id="f-q" placeholder="name or institution" value="${esc(filters.q)}" style="font:inherit;font-size:13px;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:3px 8px;border-radius:2px;flex:1;min-width:120px">
     </div>
+    <p class="eyebrow" style="margin-top:8px">${rows.length} shown, ${total - rows.length} hidden</p>
     <ul class="pp">${rows.slice(0, 60).map(personRow).join('')}</ul>
     ${rows.length > 60 ? `<p class="empty">${rows.length - 60} more. Narrow the search.</p>` : ''}
     ${!rows.length ? '<p class="empty">No one matches.</p>' : ''}`;
@@ -339,6 +344,7 @@ function wire(){
   document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { setTab('node'); showNode(b.dataset.go); cy.animate({center:{eles: cy.getElementById(b.dataset.go)}}, {duration: 250}); }));
   document.querySelectorAll('[data-person]').forEach(b => b.addEventListener('click', () => showPerson(b.dataset.person)));
   document.querySelectorAll('[data-back]').forEach(b => b.addEventListener('click', () => setTab(tab)));
+  document.querySelectorAll('[data-toggle-people]').forEach(b => b.addEventListener('click', () => { window.__showAllPeople = !window.__showAllPeople; showNode(current); }));
 }
 
 function fmtMoney(v){ v = Number(v); return v >= 1e6 ? (v/1e6).toFixed(1) + 'M' : v >= 1e3 ? Math.round(v/1e3) + 'K' : String(Math.round(v)); }

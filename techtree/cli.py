@@ -78,7 +78,7 @@ def cmd_people(args):
         rows = [p for p in rows if p.get("spinout_signal")]
     if args.node:
         rows = [p for p in rows if args.node in p["nodes"]]
-    if args.allied:
+    if not args.all:
         rows = [p for p in rows if p.get("allied")]
     if args.country:
         rows = [p for p in rows if (p.get("country") or "") == args.country.upper()]
@@ -120,7 +120,8 @@ def main(argv=None):
     pe.add_argument("--top", type=int, default=25)
     pe.add_argument("--spinout", action="store_true", help="academics with first-author work on near/blocked nodes")
     pe.add_argument("--node", default="", help="filter to one node id")
-    pe.add_argument("--allied", action="store_true", help="US and allied institutions only (NATO, Five Eyes, JP, KR, IL, TW, SG)")
+    pe.add_argument("--all", action="store_true", help="include every country (default: US and allied institutions only)")
+    pe.add_argument("--allied", action="store_true", help=argparse.SUPPRESS)
     pe.add_argument("--country", default="", help="ISO country code, e.g. US")
     pe.set_defaults(fn=cmd_people)
     no = sub.add_parser("nodes", help="nodes by status and momentum")
