@@ -14,7 +14,7 @@ The judgment layer is in `data/sectors/<sector>.json`. The machine layer is `dat
 Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/). No API keys.
 
 ```bash
-git clone <this repo> techtree && cd techtree
+git clone https://github.com/liamserour/anti-techtree techtree && cd techtree
 uv sync
 ```
 
